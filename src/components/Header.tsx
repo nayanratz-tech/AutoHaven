@@ -20,7 +20,7 @@ export default function Header({ onNavigate, activeTab }: HeaderProps) {
           <img
             src={IMAGES.logo}
             alt="AutoHaven Logo"
-            className="h-9 w-auto object-contain"
+            className="h-24 w-auto object-contain"
             referrerPolicy="no-referrer"
           />
         </button>

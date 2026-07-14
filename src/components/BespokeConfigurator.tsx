@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Check, Heart, HelpCircle, Sparkles, Sliders, Calendar, ArrowRight, Share2, Info } from "lucide-react";
-import { Vehicle, ColorOption, TrimOption, WheelOption } from "../types";
+import { Vehicle, ColorOption, TrimOption, WheelOption, SavedVehicle } from "../types";
 
 interface BespokeConfiguratorProps {
   vehicle: Vehicle;
@@ -12,14 +12,14 @@ interface BespokeConfiguratorProps {
     totalPrice: number;
   }) => void;
   onBookTestDrive: (vehicle: Vehicle) => void;
-  isSaved: boolean;
+  savedConfigs: SavedVehicle[];
 }
 
 export default function BespokeConfigurator({
   vehicle,
   onSaveConfig,
   onBookTestDrive,
-  isSaved,
+  savedConfigs,
 }: BespokeConfiguratorProps) {
   const [selectedColor, setSelectedColor] = useState<ColorOption>(vehicle.colors[0]);
   const [selectedTrim, setSelectedTrim] = useState<TrimOption>(vehicle.trims[0]);
@@ -35,6 +35,14 @@ export default function BespokeConfigurator({
 
   const basePrice = vehicle.price;
   const totalPrice = basePrice + selectedColor.price + selectedTrim.price + selectedWheel.price;
+
+  const isCurrentlySaved = savedConfigs.some(
+    (sc) =>
+      sc.vehicleId === vehicle.id &&
+      sc.configuredColor?.name === selectedColor.name &&
+      sc.configuredTrim?.name === selectedTrim.name &&
+      sc.configuredWheel?.name === selectedWheel.name
+  );
 
   const handleSave = () => {
     onSaveConfig({
@@ -68,7 +76,7 @@ export default function BespokeConfigurator({
         <div className="text-left sm:text-right">
           <span className="text-xs text-stone-400 block uppercase tracking-wider">Estimated Configured Price</span>
           <span className="text-3xl font-display font-bold text-white">
-            ${totalPrice.toLocaleString()}
+            ₹{(totalPrice / 100000).toFixed(2)} Lakh
           </span>
         </div>
       </div>
@@ -91,7 +99,7 @@ export default function BespokeConfigurator({
             />
 
             {/* Launch Status Badge */}
-            {!vehicle.isLaunced && (
+            {!vehicle.isLaunched && (
               <span className="absolute top-4 left-4 z-20 bg-brand-emerald text-white text-[10px] font-bold px-2.5 py-1 rounded tracking-widest uppercase">
                 PRE-ORDER (LAUNCHING {vehicle.launchDate})
               </span>
@@ -109,19 +117,19 @@ export default function BespokeConfigurator({
                 />
                 <span className="font-semibold text-stone-800">{selectedColor.name}</span>
               </div>
-              {selectedColor.price > 0 && <span className="text-stone-400 text-[10px] block font-mono mt-0.5">+${selectedColor.price}</span>}
+              {selectedColor.price > 0 && <span className="text-stone-400 text-[10px] block font-mono mt-0.5">+₹{(selectedColor.price / 100000).toFixed(2)} Lakh</span>}
             </div>
 
             <div>
               <span className="text-stone-400 block uppercase font-medium tracking-wider mb-1">Interior Trim</span>
               <span className="font-semibold text-stone-800 line-clamp-1">{selectedTrim.name}</span>
-              {selectedTrim.price > 0 && <span className="text-stone-400 text-[10px] block font-mono mt-0.5">+${selectedTrim.price}</span>}
+              {selectedTrim.price > 0 && <span className="text-stone-400 text-[10px] block font-mono mt-0.5">+₹{(selectedTrim.price / 100000).toFixed(2)} Lakh</span>}
             </div>
 
             <div>
               <span className="text-stone-400 block uppercase font-medium tracking-wider mb-1">Wheel Spec</span>
               <span className="font-semibold text-stone-800 line-clamp-1">{selectedWheel.name}</span>
-              {selectedWheel.price > 0 && <span className="text-stone-400 text-[10px] block font-mono mt-0.5">+${selectedWheel.price}</span>}
+              {selectedWheel.price > 0 && <span className="text-stone-400 text-[10px] block font-mono mt-0.5">+₹{(selectedWheel.price / 100000).toFixed(2)} Lakh</span>}
             </div>
           </div>
         </div>
@@ -196,7 +204,7 @@ export default function BespokeConfigurator({
                         <span className="text-xs font-semibold text-stone-800 line-clamp-1">{color.name}</span>
                       </div>
                       <div className="mt-2 flex items-center justify-between text-[11px] font-mono text-stone-400">
-                        <span>{color.price === 0 ? "No Charge" : `+$${color.price}`}</span>
+                        <span>{color.price === 0 ? "No Charge" : `+₹${(color.price / 100000).toFixed(2)} Lakh`}</span>
                         {selectedColor.name === color.name && <Check className="w-3.5 h-3.5 text-stone-950" />}
                       </div>
                     </button>
@@ -237,7 +245,7 @@ export default function BespokeConfigurator({
                         {selectedTrim.name === trim.name && <Check className="w-4 h-4 text-stone-950 shrink-0" />}
                       </div>
                       <div className="mt-2.5 pt-2 border-t border-stone-100 text-[11px] font-mono font-semibold text-stone-600">
-                        {trim.price === 0 ? "Standard Package" : `+$${trim.price.toLocaleString()}`}
+                        {trim.price === 0 ? "Standard Package" : `+₹${(trim.price / 100000).toFixed(2)} Lakh`}
                       </div>
                     </button>
                   ))}
@@ -270,7 +278,7 @@ export default function BespokeConfigurator({
                       <div>
                         <span className="text-xs font-bold text-stone-900 block">{wheel.name}</span>
                         <span className="text-[11px] font-mono text-stone-400 mt-0.5 block">
-                          {wheel.price === 0 ? "Standard Issue" : `+$${wheel.price.toLocaleString()}`}
+                          {wheel.price === 0 ? "Standard Issue" : `+₹${(wheel.price / 100000).toFixed(2)} Lakh`}
                         </span>
                       </div>
                       {selectedWheel.name === wheel.name && <Check className="w-4 h-4 text-stone-950" />}
@@ -287,15 +295,15 @@ export default function BespokeConfigurator({
               <button
                 onClick={handleSave}
                 className={`flex-1 py-3.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider border transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                  isSaved
+                  isCurrentlySaved
                     ? "bg-stone-100 border-stone-200 text-stone-500 cursor-not-allowed"
                     : "bg-white border-stone-300 text-stone-800 hover:bg-stone-50"
                 }`}
-                disabled={isSaved}
+                disabled={isCurrentlySaved}
                 id="btn-config-save"
               >
-                <Heart className={`w-4 h-4 ${isSaved ? "fill-brand-emerald text-brand-emerald" : ""}`} />
-                {isSaved ? "Configuration Saved" : "Save Configuration"}
+                <Heart className={`w-4 h-4 ${isCurrentlySaved ? "fill-brand-emerald text-brand-emerald" : ""}`} />
+                {isCurrentlySaved ? "Configuration Saved" : "Save Configuration"}
               </button>
 
               <button

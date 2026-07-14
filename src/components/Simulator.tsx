@@ -74,11 +74,11 @@ export default function Simulator({ electricVehicles }: SimulatorProps) {
   const efficiencyScore = Math.round((currentRange / nominalRange) * 100);
 
   // Charging Speed Simulation
-  const batteryCap = selectedEv.id === "ioniq-6" ? 77.4 : selectedEv.id === "ev-6" ? 77.4 : selectedEv.id === "harrier-ev" ? 80.0 : 87.7;
+  const batteryCap = selectedEv.id === "sierra-ev" ? 75.0 : selectedEv.id === "ev-6" ? 77.4 : selectedEv.id === "harrier-ev" ? 75.0 : selectedEv.id === "be-6" ? 79.0 : selectedEv.id === "creta-ev" ? 51.4 : 87.7;
   
   // Estimated charge times from 10% to 80% (70% replenishment)
   const homeLevel2TimeHours = ((batteryCap * 0.7) / 11.5).toFixed(1); // 11.5 kW Level 2 wallbox
-  const DCFast350kWMinutes = selectedEv.id === "ioniq-6" || selectedEv.id === "ev-6" ? 18 : 28;
+  const DCFast350kWMinutes = selectedEv.id === "sierra-ev" ? 26 : selectedEv.id === "ev-6" ? 18 : selectedEv.id === "be-6" ? 20 : selectedEv.id === "creta-ev" ? 58 : 28;
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200 shadow-sm max-w-5xl mx-auto overflow-hidden">

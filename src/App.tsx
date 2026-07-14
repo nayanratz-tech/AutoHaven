@@ -30,6 +30,7 @@ import VehicleDetail from "./components/VehicleDetail";
 
 import { VEHICLES, IMAGES, TEST_LOCATIONS } from "./data";
 import { Vehicle, TestDriveBooking, SavedVehicle, ColorOption, TrimOption, WheelOption } from "./types";
+import { DisplayCardsDemo } from "./components/ui/demo";
 
 export default function App() {
   // Navigation & View States
@@ -38,12 +39,26 @@ export default function App() {
   
   // Custom Studio View (Inside Experience Tab)
   const [studioView, setStudioView] = useState<"configurator" | "simulator">("configurator");
-  const [configuratorVehicleId, setConfiguratorVehicleId] = useState<string>("ioniq-6");
+  const [configuratorVehicleId, setConfiguratorVehicleId] = useState<string>("sierra-ev");
 
   // Filter States for Inventory
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
-  const [priceRange, setPriceRange] = useState<number>(80000);
+  const [priceRange, setPriceRange] = useState<number>(7000000);
+
+  // Hero Carousel State
+  const heroVehicles = VEHICLES.filter((v) =>
+    ["sierra-ev", "be-6", "creta-ev", "harrier-ev"].includes(v.id)
+  );
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  useEffect(() => {
+    if (activeTab !== "home") return;
+    const interval = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroVehicles.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [activeTab, heroVehicles.length]);
 
   // Persistence States (Persisted in LocalStorage)
   const [bookings, setBookings] = useState<TestDriveBooking[]>([]);
@@ -156,6 +171,8 @@ export default function App() {
 
   const handleCategorySelectFromHome = (cat: string) => {
     setCategoryFilter(cat);
+    setSearchQuery("");
+    setPriceRange(7000000);
     setActiveTab("inventory");
     setSelectedVehicleId(null);
   };
@@ -203,53 +220,93 @@ export default function App() {
         {/* VIEW 1: HOME */}
         {activeTab === "home" && (
           <div className="space-y-[100px] animate-fade-in">
-            {/* Elegant Hero Banner */}
-            <div className="relative h-[92vh] w-full flex items-center overflow-hidden">
-              <div className="absolute inset-0 z-0">
-                <img
-                  src={IMAGES.heroBg}
-                  alt="AutoHaven Luxury Showroom"
-                  className="w-full h-full object-cover scale-105 filter brightness-[0.7] blur-[1px]"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+            {/* Elegant Dynamic Hero Showcase */}
+            <div className="relative h-[92vh] w-full flex flex-col justify-between overflow-hidden bg-stone-950">
+              {/* Background Showcase Image */}
+              <div className="absolute inset-0 z-0 transition-all duration-1000 ease-in-out">
+                {heroVehicles[heroIndex] && (
+                  <img
+                    src={heroVehicles[heroIndex].imageUrl}
+                    alt={heroVehicles[heroIndex].name}
+                    className="w-full h-full object-cover scale-105 filter brightness-[0.5] contrast-[1.05] transition-all duration-1000"
+                    referrerPolicy="no-referrer"
+                    key={heroVehicles[heroIndex].id}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-black/30" />
+                <div className="absolute inset-0 bg-gradient-to-r from-stone-950/65 via-transparent to-transparent hidden md:block" />
               </div>
 
-              <div className="relative z-10 max-w-[1440px] mx-auto px-8 w-full">
-                <div className="max-w-2xl text-white space-y-6">
-                  <span className="text-[10px] font-bold text-brand-emerald tracking-widest uppercase bg-brand-emerald/10 border border-brand-emerald/20 px-3 py-1.5 rounded-full inline-block">
-                    ESTABLISHED 2024
-                  </span>
-                  <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tight leading-[1.05]">
-                    Your Next Drive <br />Starts Here
-                  </h1>
-                  <p className="text-stone-300 text-base md:text-lg leading-relaxed max-w-lg">
-                    Experience the future of automotive luxury. Curated for the next generation of drivers who value uncompromised performance, quiet elegance, and advanced technology.
-                  </p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                    <button
-                      onClick={() => handleCategorySelectFromHome("All")}
-                      className="px-8 py-4 bg-white text-stone-950 font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-stone-100 transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
-                      id="btn-hero-explore"
-                    >
-                      Explore Collection <ArrowRight className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => triggerBookingModal(VEHICLES[0])}
-                      className="px-8 py-4 bg-brand-emerald hover:bg-[#004d45] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2"
-                      id="btn-hero-book"
-                    >
-                      Book Private Showcase
-                    </button>
+              {/* Center Content */}
+              <div className="relative z-10 flex-grow flex items-center max-w-[1440px] mx-auto px-8 w-full pt-16">
+                {heroVehicles[heroIndex] && (
+                  <div className="max-w-2xl text-white space-y-5 animate-fade-in" key={`content-${heroVehicles[heroIndex].id}`}>
+                    <span className="text-[10px] font-bold text-brand-emerald tracking-widest uppercase bg-brand-emerald/10 border border-brand-emerald/20 px-3 py-1.5 rounded-full inline-block">
+                      {heroVehicles[heroIndex].brand} MOTORING
+                    </span>
+                    <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tight leading-[1.05] text-white">
+                      {heroVehicles[heroIndex].name}
+                    </h1>
+                    <p className="text-brand-emerald text-sm font-semibold tracking-wide italic">
+                      "{heroVehicles[heroIndex].tagline}"
+                    </p>
+                    <p className="text-stone-300 text-xs md:text-sm leading-relaxed max-w-lg font-sans">
+                      {heroVehicles[heroIndex].description}
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                      <button
+                        onClick={() => {
+                          setSelectedVehicleId(heroVehicles[heroIndex].id);
+                          setActiveTab("inventory");
+                        }}
+                        className="px-6 py-3.5 bg-white text-stone-950 font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-stone-100 transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        Explore Details <ArrowRight className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleConfigureFromInventory(heroVehicles[heroIndex])}
+                        className="px-6 py-3.5 bg-brand-emerald hover:bg-[#004d45] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        Bespoke Studio <Sliders className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
-              {/* Scroll tag */}
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 text-[10px] tracking-widest uppercase flex flex-col items-center gap-1.5 font-semibold">
-                <span>SCROLL</span>
-                <ChevronDown className="w-4 h-4 animate-bounce" />
+              {/* Bottom Thumbnail Gallery Overlay (Replicating uploaded mock composition) */}
+              <div className="relative z-10 max-w-[1440px] mx-auto px-8 w-full pb-8 md:pb-10">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-black/40 backdrop-blur-md p-4 rounded-2xl border border-white/5 max-w-4xl">
+                  {heroVehicles.map((vehicle, idx) => (
+                    <div
+                      key={vehicle.id}
+                      onClick={() => setHeroIndex(idx)}
+                      className={`group relative flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all duration-300 border ${
+                        heroIndex === idx
+                          ? "bg-white/10 border-brand-emerald shadow-lg"
+                          : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
+                      }`}
+                    >
+                      <div className="w-14 h-10 rounded-lg overflow-hidden bg-stone-900 border border-white/10 shrink-0">
+                        <img
+                          src={vehicle.imageUrl}
+                          alt={vehicle.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                      <div className="text-left overflow-hidden">
+                        <span className="text-[8px] font-bold text-brand-emerald tracking-wider uppercase block">{vehicle.brand}</span>
+                        <span className="text-[11px] font-bold text-white block truncate leading-tight mt-0.5">{vehicle.name}</span>
+                        <span className="text-[9px] font-mono text-stone-400 block mt-0.5">₹{(vehicle.price / 100000).toFixed(1)}L</span>
+                      </div>
+                      {heroIndex === idx && (
+                        <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-brand-emerald" />
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -279,8 +336,8 @@ export default function App() {
                   {
                     name: "Electric Vehicles",
                     desc: "Zero-emission performance with elite aerodynamic contours.",
-                    image: IMAGES.ioniq6,
-                    count: "3 Models"
+                    image: IMAGES.sierraev,
+                    count: "5 Models"
                   },
                   {
                     name: "Performance Lab",
@@ -382,17 +439,15 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right Side: Editorial Lifestyle Image */}
-                <div className="lg:col-span-7">
-                  <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-stone-800/80">
-                    <img
-                      src={IMAGES.heroBg}
-                      alt="Refined Dealings"
-                      className="w-full h-full object-cover scale-110 object-bottom brightness-[0.8] contrast-[1.05]"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950/40 via-transparent to-transparent" />
-                  </div>
+                {/* Right Side: Display Cards Selector */}
+                <div className="lg:col-span-7 flex justify-center items-center">
+                  <DisplayCardsDemo
+                    onSelectVehicle={(vehicleId) => {
+                      setSelectedVehicleId(vehicleId);
+                      setActiveTab("inventory");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  />
                 </div>
               </div>
             </section>
@@ -502,22 +557,22 @@ export default function App() {
                   <div className="space-y-1">
                     <div className="flex justify-between items-center text-[10px] font-bold text-stone-400 uppercase tracking-wider">
                       <span>Maximum MSRP Limit</span>
-                      <span className="text-stone-900 font-mono font-bold">${priceRange.toLocaleString()}</span>
+                      <span className="text-stone-900 font-mono font-bold">₹{(priceRange / 100000).toFixed(1)} Lakh</span>
                     </div>
                     <input
                       type="range"
-                      min="20000"
-                      max="85000"
-                      step="2500"
+                      min="1000000"
+                      max="7000000"
+                      step="200000"
                       value={priceRange}
                       onChange={(e) => setPriceRange(parseInt(e.target.value))}
                       className="w-full h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-brand-emerald focus:outline-none mt-2"
                       id="slider-price-limit"
                     />
                     <div className="flex justify-between text-[9px] text-stone-400 font-mono">
-                      <span>$20k</span>
-                      <span>$50k</span>
-                      <span>$85k+</span>
+                      <span>₹10 Lakh</span>
+                      <span>₹40 Lakh</span>
+                      <span>₹70 Lakh+</span>
                     </div>
                   </div>
 
@@ -554,7 +609,7 @@ export default function App() {
                           />
                           
                           {/* Top Tag */}
-                          {!vehicle.isLaunced ? (
+                          {!vehicle.isLaunched ? (
                             <span className="absolute top-4 left-4 bg-brand-emerald text-white text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded shadow-sm">
                               PRE-ORDER OPEN
                             </span>
@@ -566,7 +621,7 @@ export default function App() {
 
                           {/* Float price */}
                           <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm text-stone-900 px-3 py-1.5 rounded-lg border border-stone-100 shadow-sm text-sm font-display font-bold">
-                            ${vehicle.price.toLocaleString()}
+                            ₹{(vehicle.price / 100000).toFixed(2)} Lakh
                           </div>
                         </div>
 
@@ -638,7 +693,7 @@ export default function App() {
                       onClick={() => {
                         setSearchQuery("");
                         setCategoryFilter("All");
-                        setPriceRange(80000);
+                        setPriceRange(7000000);
                       }}
                       className="mt-6 px-5 py-2.5 bg-stone-900 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-stone-800 transition-colors cursor-pointer"
                       id="btn-reset-filters"
@@ -725,12 +780,12 @@ export default function App() {
                   vehicle={selectedConfiguratorVehicle}
                   onSaveConfig={handleSaveConfig}
                   onBookTestDrive={(v) => triggerBookingModal(v)}
-                  isSaved={savedConfigs.some((sc) => sc.vehicleId === selectedConfiguratorVehicle.id)}
+                  savedConfigs={savedConfigs}
                 />
               </div>
             ) : (
               <Simulator
-                electricVehicles={VEHICLES.filter((v) => v.category === "Electric Vehicles" || v.id === "harrier-ev" || v.id === "be-05")}
+                electricVehicles={VEHICLES.filter((v) => v.category === "Electric Vehicles")}
               />
             )}
           </div>
@@ -907,7 +962,7 @@ export default function App() {
                               <div className="flex items-center justify-between">
                                 <span className="text-[10px] text-stone-400 font-mono">Saved {config.savedAt}</span>
                                 <span className="font-display font-bold text-stone-950 text-sm">
-                                  ${config.totalPrice.toLocaleString()}
+                                  ₹{(config.totalPrice / 100000).toFixed(2)} Lakh
                                 </span>
                               </div>
                               <h4 className="font-display font-semibold text-stone-900 mt-1 text-sm">{vehRef.brand} {vehRef.name}</h4>
@@ -1001,7 +1056,7 @@ export default function App() {
               <img
                 src={IMAGES.logo}
                 alt="AutoHaven Logo"
-                className="h-8 w-auto brightness-200 invert"
+                className="h-24 w-auto object-contain"
                 referrerPolicy="no-referrer"
               />
             </div>

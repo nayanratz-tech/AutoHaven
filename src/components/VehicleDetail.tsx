@@ -98,12 +98,12 @@ export default function VehicleDetail({ vehicle, onBack, onBookTestDrive, onConf
               <div>
                 <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest block">Guaranteed MSRP</span>
                 <span className="text-3xl font-display font-bold text-stone-900 mt-0.5 block">
-                  ${vehicle.price.toLocaleString()}
+                  ₹{(vehicle.price / 100000).toFixed(2)} Lakh
                 </span>
               </div>
               <div className="text-right">
                 <span className="text-[10px] font-bold text-brand-emerald bg-emerald-50 px-2.5 py-1 rounded uppercase tracking-wider block font-semibold">
-                  {vehicle.isLaunced ? "Immediate Order" : "Pre-Order Open"}
+                  {vehicle.isLaunched ? "Immediate Order" : "Pre-Order Open"}
                 </span>
               </div>
             </div>

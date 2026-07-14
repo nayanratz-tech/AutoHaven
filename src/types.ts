@@ -42,7 +42,7 @@ export interface Vehicle {
   colors: ColorOption[];
   trims: TrimOption[];
   wheels: WheelOption[];
-  isLaunced: boolean;
+  isLaunched: boolean;
   launchDate?: string;
 }
 

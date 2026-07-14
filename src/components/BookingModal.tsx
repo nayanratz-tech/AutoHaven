@@ -179,7 +179,7 @@ export default function BookingModal({ vehicle, onClose, onSuccess, allVehicles 
               <div>
                 <h4 className="font-display font-semibold text-stone-900 text-sm">{selectedVehicle.brand} {selectedVehicle.name}</h4>
                 <p className="text-xs text-stone-500 mt-0.5 italic">{selectedVehicle.tagline}</p>
-                <p className="text-xs font-bold text-brand-emerald mt-1">Starting at ${selectedVehicle.price.toLocaleString()}</p>
+                <p className="text-xs font-bold text-brand-emerald mt-1">Starting at ₹{(selectedVehicle.price / 100000).toFixed(2)} Lakh</p>
               </div>
             </div>
           )}
