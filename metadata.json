@@ -1,0 +1,6 @@
+{
+  "name": "AutoHaven",
+  "description": "A cinematic digital gallery and booking experience for next-generation luxury vehicles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
